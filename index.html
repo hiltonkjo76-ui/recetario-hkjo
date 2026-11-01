@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Recetario Hkjo.</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Recetario Hkjo.">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#E0A24A">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #14171C;
+    }
+    #cargando {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      color: #9AA3AE;
+      background: #14171C;
+    }
+    #cargando img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      box-shadow: 0 4px 14px rgba(46,42,38,0.18);
+    }
+    #cargando span { font-size: 14px; }
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid #2A2F37;
+      border-top-color: #E0A24A;
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    noscript { display: block; padding: 24px; font-family: sans-serif; text-align: center; }
+    .hidden { display: none; }
+    #marco {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #14171C;
+    }
+    #ayuda {
+      position: fixed;
+      left: 0; right: 0;
+      bottom: env(safe-area-inset-bottom, 0px);
+      padding: 8px 12px;
+      text-align: center;
+      font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      font-size: 12.5px;
+      color: #B5BCC6;
+      background: rgba(20,23,28,0.96);
+      border-top: 1px solid #2A2F37;
+    }
+    #ayuda a { color: #E0A24A; font-weight: 600; }
+    #instalar {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      padding: 32px 24px;
+      text-align: center;
+      font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #14171C;
+    }
+    #instalar img { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 4px 14px rgba(46,42,38,0.18); }
+    #instalar h2 { margin: 4px 0 0; color: #F2EEE6; }
+    #instalar p { color: #B5BCC6; font-size: 14.5px; line-height: 1.5; max-width: 320px; margin: 0; }
+    #instalar button {
+      margin-top: 6px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 12px;
+      background: #E0A24A;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cargando">
+    <img src="icon-192.png" alt="">
+    <div class="spinner"></div>
+    <span>Abriendo Recetario Hkjo.…</span>
+  </div>
+
+  <div id="instalar" class="hidden">
+    <img src="icon-192.png" alt="">
+    <h2>Recetario Hkjo.</h2>
+    <p id="txtAndroid">Para instalarla con el ícono correcto: abre el menú (⋮) de Chrome y toca <b>“Agregar a pantalla de inicio”</b> o <b>“Instalar app”</b>.</p>
+    <p id="txtIphone" class="hidden">Para instalarla en tu iPhone: abre esta página en <b>Safari</b>, toca el botón <b>Compartir</b> (el cuadro con una flecha hacia arriba) y elige <b>“Añadir a pantalla de inicio”</b>. Luego toca <b>“Añadir”</b>.</p>
+    <button onclick="abrir()">Abrir sin instalar</button>
+  </div>
+
+  <iframe id="marco" class="hidden" title="Recetario Hkjo." allow="clipboard-write"></iframe>
+  <div id="ayuda" class="hidden">¿Se ve en blanco o pide iniciar sesión? <a href="#" onclick="ir();return false;">Abrir directo</a></div>
+
+  <noscript>
+    <p>Activa JavaScript, o entra directo a
+      <a href="https://script.google.com/macros/s/AKfycbyf-5dGVA7VNbTV3sPrIY2NKtZbKR9K3Fxy26qJUjwWoCiHT9gwja7P4Y7OeuEm-qzA/exec">el recetario</a>.
+    </p>
+  </noscript>
+
+  <script>
+    var URL_APP = 'https://script.google.com/macros/s/AKfycbyf-5dGVA7VNbTV3sPrIY2NKtZbKR9K3Fxy26qJUjwWoCiHT9gwja7P4Y7OeuEm-qzA/exec';
+
+    // iPhone / iPad: Safari bloquea las cookies de terceros dentro de un
+    // marco, asi que ahi la app se abre siempre en pantalla completa
+    // directa (el aviso de Google se queda, pero se cierra con la X).
+    var esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    // Abrir directo (sin marco): sirve de salida si el marco no carga.
+    function ir() {
+      location.replace(URL_APP);
+    }
+
+    // Android y PC: la app se muestra dentro de esta pagina, a pantalla
+    // completa. Asi Google no muestra el aviso "Un usuario de Google
+    // Apps Script creo esta aplicacion".
+    function enMarco() {
+      document.getElementById('cargando').classList.add('hidden');
+      document.getElementById('instalar').classList.add('hidden');
+      var f = document.getElementById('marco');
+      f.classList.remove('hidden');
+      f.src = URL_APP;
+      // Ayuda para salir si el marco queda en blanco; se oculta sola.
+      var ay = document.getElementById('ayuda');
+      ay.classList.remove('hidden');
+      f.addEventListener('load', function () {
+        setTimeout(function () { ay.classList.add('hidden'); }, 9000);
+      });
+    }
+
+    function abrir() {
+      if (esIOS) ir(); else enMarco();
+    }
+
+    var instalada = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+    var directo = /(^|[?&])directo(=|&|$)/.test(location.search);
+
+    if (directo) {
+      ir();
+    } else if (instalada) {
+      // Abierta desde el icono de la pantalla de inicio.
+      setTimeout(abrir, 50);
+    } else {
+      // Primera vez / navegador normal: NO abre sola. Muestra como
+      // instalarla (con el ícono correcto) y un boton para seguir igual.
+      if (esIOS) {
+        document.getElementById('txtAndroid').classList.add('hidden');
+        document.getElementById('txtIphone').classList.remove('hidden');
+      }
+      document.getElementById('cargando').classList.add('hidden');
+      document.getElementById('instalar').classList.remove('hidden');
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+
+</body>
+</html>
